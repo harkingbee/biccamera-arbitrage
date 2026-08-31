@@ -1,0 +1,62 @@
+name: BicCamera Arbitrage Daily
+
+on:
+  schedule:
+    - cron: '0 21 * * *' # JST 06:00 (UTC 21:00)
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'yahoo_mercari_arbitrage/**'
+      - '.github/workflows/arbitrage.yml'
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+      - name: Install dependencies
+        run: |
+          pip install -r yahoo_mercari_arbitrage/requirements.txt
+          pip install mercapi yahoo-shopping
+          # clone GitHub helper repos (cached)
+          if [ ! -d /tmp/yahoo-auctions-scraper ]; then
+            git clone --depth 1 https://github.com/atushi1841/yahoo-auctions-japan-scraper.git /tmp/yahoo-auctions-scraper
+          fi
+      - name: Run GitHub-integrated arbitrage
+        env:
+          YAHOO_APP_ID: ${{ secrets.YAHOO_APP_ID }}
+          # fallback to repo secret or hardcoded for demo
+        run: |
+          export YAHOO_APP_ID=${YAHOO_APP_ID:-dmVyPTIwMjUwNyZpZD1IYm5kZzRhN0w3Jmhhc2g9TkRNeE1tSTFZMkZsTUdVeFkyWmtNZw}
+          python -m yahoo_mercari_arbitrage.arbitrage_github_integrated
+          # also run research margin analyzer (Yahoo vs Mercari cross-check)
+          python -m yahoo_mercari_arbitrage.research.margin_analyzer \
+            --yahoo results/github_integrated_$(date +%Y%m%d)*.csv \
+            --suruga "ハンディファン=results/github_integrated_$(date +%Y%m%d)*.csv" \
+            --min-margin-rate 0.10 --out results/margin_$(date +%Y%m%d).json || true
+      - name: Commit results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add results/ logs/ || true
+          git diff --staged --quiet || git commit -m "chore: daily arbitrage $(date +%Y-%m-%d) [skip ci]"
+          git push || true
+      - name: Create issue for profitable items
+        if: always()
+        uses: peter-evans/create-issue-from-file@v5
+        with:
+          title: "利益あり ${{ github.run_id }} - $(date +%Y-%m-%d)"
+          content-filepath: results/github_integrated_summary_${{ env.TODAY }}.txt
+          labels: arbitrage
