@@ -26,3 +26,12 @@ python -m yahoo_mercari_arbitrage.arbitrage_github_integrated
 ## ワークフロー
 
 `.github/workflows/arbitrage.yml` が毎日06:00 JSTに実行
+
+## ノジマオンライン対応
+
+`yahoo_mercari_arbitrage/nojima_arbitrage.py` でノジマオンラインも同ロジックで調査可能。Akamai保護のため3段階フォールバック（Playwright直接 → Bright Data/Apify Proxy → Yahoo代理）を実装。`results/nojima_github_*.csv` に結果を出力。
+
+```bash
+python -m yahoo_mercari_arbitrage.nojima_arbitrage
+# → results/nojima_github_YYYYMMDD.csv
+```
