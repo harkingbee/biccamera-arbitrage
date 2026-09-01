@@ -1,0 +1,26 @@
+﻿rank,name,model,category,yahoo_price,net_cost,mercapi_median,mercapi_count,yahooAuction_median,yahooAuction_count,conservative_median,match_score,is_same_sku,is_accessory,shipping,profit_yen,profit_margin,is_profitable,confidence,total_count,yahoo_url
+24,SIROCA　ハンディファン ストーングレー　SF-H631HS,SF-H631HS,扇風機本体,2530,1362,,0,,0,,0.5,False,False,600,,,False,sku_mismatch,0,https://store.shopping.yahoo.co.jp/y-kojima/4589919844296.html
+1,サンコネクション 準固体バッテリー搭載 ハンディファン ChibiGEAR ホワイト SUNMHF-01 【864】,SUNMHF-01,扇風機本体,4378,3006,,0,,0,,0.4,False,True,600,,,False,sku_mismatch,0,https://store.shopping.yahoo.co.jp/y-sofmap/4573616740234.html
+25,NAKAGAMI　大風量ハンディファン 充電式 台座付 ベージュ　YNG-LHF200-BE,YNG-LHF200-BE,扇風機本体,2178,1048,,0,,0,,0.6,False,True,600,,,False,sku_mismatch,0,https://store.shopping.yahoo.co.jp/y-kojima/4580441488804.html
+26,ユアサ　折り畳み 5WAYハンディファン パワフル風量　YM-7020HS-H,YM-7020HS-H,扇風機本体,3980,2652,,0,,0,,0.67,True,False,600,,,False,low,0,https://store.shopping.yahoo.co.jp/y-kojima/4979966573971.html
+2,SIROCA ハンディファン  ストーングレー SF-H631HS,SF-H631HS,扇風機本体,2530,1362,,0,,0,,0.5,False,False,600,,,False,sku_mismatch,0,https://store.shopping.yahoo.co.jp/y-sofmap/4589919844296.html
+3,多摩電子工業 折り畳みハンディファン　オリオンビールコラボモデル ホワイト,,扇風機本体,2850,1646,,0,,0,,0,True,False,600,,,False,low,0,https://store.shopping.yahoo.co.jp/y-sofmap/4518707317742.html
+4,NAKAGAMI 充電式大風量ハンディファン  ベージュ YNG-LHF200-BE,YNG-LHF200-BE,扇風機本体,2178,1048,,0,,0,,0.6,False,True,600,,,False,sku_mismatch,0,https://store.shopping.yahoo.co.jp/y-sofmap/4580441488804.html
+5,多摩電子工業 折り畳みハンディファン オリオンビールコラボモデル グレー,,扇風機本体,2850,1646,,0,,0,,0,True,False,600,,,False,low,0,https://store.shopping.yahoo.co.jp/y-sofmap/4518707317759.html
+7,ファンマックスジャパン ハンディクリーナー CellCube CCVC01-BG コードレス,CCVC01-BG,ハンディークリーナー,10610,8553,,0,,0,,0.67,False,True,600,,,False,sku_mismatch,0,https://store.shopping.yahoo.co.jp/y-sofmap/4582586410597.html
+27,SIROCA　ハンディファン サーモンピンク　SF-H631PL,SF-H631PL,扇風機本体,2530,1362,,0,,0,,0.5,False,False,600,,,False,sku_mismatch,0,https://store.shopping.yahoo.co.jp/y-kojima/4589919844272.html
+28,SIROCA　ハンディファン ティール　SF-H631AG,SF-H631AG,扇風機本体,2530,1362,,0,,0,,0.5,False,False,600,,,False,sku_mismatch,0,https://store.shopping.yahoo.co.jp/y-kojima/4589919844265.html
+29,ビックアイデア　クリップファン ハンディファン SEA SIDE WINDS スタンド機能 ネックストラップ付き サンライズミント　BIT-CLFAN01,BIT-CLFAN01,扇風機本体,2080,961,,0,,0,,0.33,False,True,600,,,False,sku_mismatch,0,https://store.shopping.yahoo.co.jp/y-kojima/4944370064612.html
+30,ビックアイデア　クリップファン ハンディファン SEA SIDE WINDS スタンド機能 ネックストラップ付き ヌーンホワイト　BIT-CLFAN01,BIT-CLFAN01,扇風機本体,2080,961,,0,,0,,0.33,False,True,600,,,False,sku_mismatch,0,https://store.shopping.yahoo.co.jp/y-kojima/4944370064629.html
+31,ビックアイデア　クリップファン ハンディファン SEA SIDE WINDS スタンド機能 ネックストラップ付き マジックピンク　BIT-CLFAN01,BIT-CLFAN01,扇風機本体,2080,961,,0,,0,,0.33,False,True,600,,,False,sku_mismatch,0,https://store.shopping.yahoo.co.jp/y-kojima/4944370064636.html
+32,多摩電子工業　折りたたみハンディファン オリオンビールコラボモデル ネックストラップ付き 卓上 グレー　ACP5-ORH,ACP5-ORH,扇風機本体,2850,1646,,0,,0,,0.67,True,True,600,,,False,accessory_filtered,0,https://store.shopping.yahoo.co.jp/y-kojima/4518707317759.html
+33,多摩電子工業　折りたたみハンディファン オリオンビールコラボモデル ネックストラップ付き 卓上 ホワイト　ACP5-ORW,ACP5-ORW,扇風機本体,2850,1646,3839,1,,0,3839,0.67,True,True,600,,,False,accessory_filtered,1,https://store.shopping.yahoo.co.jp/y-kojima/4518707317742.html
+34,ヤマゼン　サーキュレーター扇風機 DCモーター搭載 (省エネタイプ) 23cm 7枚 PD仕様 リモコン付き グレージュ　RLX-MP023-C,RLX-MP023-C,扇風機本体,6980,5322,8682,4,,0,8682,0.4,True,False,600,1892,21.79,True,medium,4,https://store.shopping.yahoo.co.jp/y-kojima/4550533145441.html
+35,ヤマゼン　扇風機 DCモーター搭載 (省エネタイプ) 自動首振り機能あり 30cm 7枚 PD仕様 リモコン付き グレージュ　RLX-CP030-C,RLX-CP030-C,扇風機本体,6980,5322,6000,7,7800,7,6000,0.4,True,False,600,-522,-8.7,False,high,14,https://store.shopping.yahoo.co.jp/y-kojima/4550533145861.html
+36,ヤマゼン　サーキュレーター扇風機 DCモーター搭載 (省エネタイプ) 23cm 7枚 PD仕様 リモコン付き ライトグレー　RLX-MP023-H,RLX-MP023-H,扇風機本体,6980,5322,8500,1,,0,8500,0.4,True,False,600,1728,20.33,False,low,1,https://store.shopping.yahoo.co.jp/y-kojima/4550533145427.html
+37,ダイソン　dyson　DysonHot＋Cool HF1remotelinkpre-heatファンヒーター ［DCモーター搭載 / リモコン付き］ ホワイト/シルバー　AM15WS,HF1REMOTELINKPRE-HEAT,扇風機本体,55500,48505,,0,,0,,0.29,False,False,600,,,False,sku_mismatch,0,https://store.shopping.yahoo.co.jp/y-kojima/5025155111949.html
+38,シィーネット　ハイポジ温度センサーDCリビング扇  ホワイト (35cm)　CFDH407WH,CFDH407WH,扇風機本体,12800,10502,777,3,12680,7,777,0.33,True,False,600,-10403,-1338.83,False,high,10,https://store.shopping.yahoo.co.jp/y-kojima/4571102092713.html
+39,SIROCA　加湿付き温冷風扇　シロカのなごみ　ホワイト　［リモコン付き］　SH-C252,SH-C252,扇風機本体,23980,20452,8400,30,8999,48,8400,0.67,False,False,600,,,False,sku_mismatch,78,https://store.shopping.yahoo.co.jp/y-kojima/4589919819881.html
+40,SIROCA　シロカ 壁掛け扇風機 壁掛けふわビューン DCモーター搭載 自動首振り機能あり リモコン付き ホワイト　SF-W251,SF-W251,扇風機本体,12980,10662,3300,3,13464,9,3300,0.5,False,False,600,,,False,sku_mismatch,12,https://store.shopping.yahoo.co.jp/y-kojima/4589919849383.html
+41,シィーネット　3D扇風機 DCモーター搭載 (省エネタイプ) 自動首振り機能あり 7枚 上下左右 音声ガイド リモコン付き  ホワイト　CFDU704WH,CFDU704WH,扇風機本体,8480,6657,7808,3,9900,14,7808,0.33,True,False,600,-230,-2.94,False,high,17,https://store.shopping.yahoo.co.jp/y-kojima/4571102093512.html
+42,SWITCHBOT　スマートサーキュレーターLite ［DCモーター搭載 /リモコン付き］　W3800511,SWITCHBOT,扇風機本体,10980,8882,4100,30,6440,342,4100,0.25,True,False,600,,,False,low,372,https://store.shopping.yahoo.co.jp/y-kojima/0810150541441.html
