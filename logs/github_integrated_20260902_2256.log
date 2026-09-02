@@ -1,0 +1,89 @@
+2026-09-02 22:56:36,298 [INFO] === GitHub統合版 スキャン開始 ===
+2026-09-02 22:56:36,298 [INFO] Yahoo seller=y-sofmap query=ハンディファン
+2026-09-02 22:56:37,408 [INFO]  -> 8 total 8
+2026-09-02 22:56:39,409 [INFO] Yahoo seller=y-sofmap query=扇風機
+2026-09-02 22:56:40,214 [INFO]  -> 8 total 95
+2026-09-02 22:56:42,215 [INFO] Yahoo seller=y-sofmap query=ネッククーラー
+2026-09-02 22:56:42,857 [INFO]  -> 1 total 1
+2026-09-02 22:56:44,858 [INFO] Yahoo seller=y-sofmap query=サーキュレーター
+2026-09-02 22:56:45,937 [INFO]  -> 8 total 27
+2026-09-02 22:56:47,939 [INFO] Yahoo seller=y-sofmap query=除湿機
+2026-09-02 22:56:48,637 [INFO]  -> 8 total 43
+2026-09-02 22:56:50,638 [INFO] Yahoo seller=y-sofmap query=アウトレット
+2026-09-02 22:56:51,229 [INFO]  -> 5 total 5
+2026-09-02 22:56:53,230 [INFO] Yahoo seller=y-kojima query=ハンディファン
+2026-09-02 22:56:53,950 [INFO]  -> 8 total 14
+2026-09-02 22:56:55,951 [INFO] Yahoo seller=y-kojima query=扇風機
+2026-09-02 22:56:56,745 [INFO]  -> 8 total 254
+2026-09-02 22:56:58,746 [INFO] Yahoo seller=y-kojima query=ネッククーラー
+2026-09-02 22:56:59,556 [INFO]  -> 8 total 8
+2026-09-02 22:57:01,557 [INFO] Yahoo seller=y-kojima query=サーキュレーター
+2026-09-02 22:57:02,896 [INFO]  -> 8 total 54
+2026-09-02 22:57:04,897 [INFO] Yahoo seller=y-kojima query=除湿機
+2026-09-02 22:57:05,699 [INFO]  -> 8 total 72
+2026-09-02 22:57:07,700 [INFO] Yahoo seller=y-kojima query=アウトレット
+2026-09-02 22:57:08,198 [INFO]  -> 1 total 1
+2026-09-02 22:57:10,200 [INFO] 重複排除後 73件
+2026-09-02 22:57:10,201 [INFO] 照合対象 30件
+2026-09-02 22:57:33,226 [INFO] Selenium 起動 (Yahoo Auction用)
+2026-09-02 22:57:33,241 [INFO] [35] SIROCA　ハンディファン ストーングレー　SF-H631HS model=SF-H631HS has_discount=False 0%
+2026-09-02 22:57:46,613 [INFO]  -> cons2530 mNone(0) y2530(2) profit315 conflow discount0%
+2026-09-02 22:57:46,914 [INFO] [01] サンコネクション 準固体バッテリー搭載 ハンディファン Chib model=SUNMHF-01 has_discount=False 0%
+2026-09-02 22:57:55,866 [INFO]  -> cons4378 mNone(0) y4378(2) profit334 conflow discount0%
+2026-09-02 22:57:56,167 [INFO] [36] NAKAGAMI　大風量ハンディファン 充電式 台座付 ベージュ model=YNG-LHF200-BE has_discount=False 0%
+2026-09-02 22:58:05,045 [INFO]  -> cons2289 mNone(0) y2289(6) profit412 confhigh discount0%
+2026-09-02 22:58:05,346 [INFO] [37] ユアサ　折り畳み 5WAYハンディファン パワフル風量　YM-7 model=YM-7020HS-H has_discount=False 0%
+2026-09-02 22:58:14,208 [INFO]  -> cons3980 mNone(0) y3980(1) profit330 conflow discount0%
+2026-09-02 22:58:14,508 [INFO] [02] SIROCA ハンディファン  ストーングレー SF-H631H model=SF-H631HS has_discount=False 0%
+2026-09-02 22:58:22,885 [INFO]  -> cons2530 mNone(0) y2530(2) profit315 conflow discount0%
+2026-09-02 22:58:23,186 [INFO] [03] 多摩電子工業 折り畳みハンディファン　オリオンビールコラボモデル model=None has_discount=False 0%
+2026-09-02 22:58:25,388 [INFO]  -> consNone mNone(0) yNone(0) profit confnone discount0%
+2026-09-02 22:58:25,688 [INFO] [04] 多摩電子工業 折り畳みハンディファン オリオンビールコラボモデル model=None has_discount=False 0%
+2026-09-02 22:58:27,890 [INFO]  -> consNone mNone(0) yNone(0) profit confnone discount0%
+2026-09-02 22:58:28,191 [INFO] [05] NAKAGAMI 充電式大風量ハンディファン  ベージュ YNG model=YNG-LHF200-BE has_discount=False 0%
+2026-09-02 22:58:37,126 [INFO]  -> cons2289 mNone(0) y2289(6) profit412 confhigh discount0%
+2026-09-02 22:58:37,427 [INFO] [07] ファンマックスジャパン ハンディクリーナー CellCube C model=CCVC01-BG has_discount=False 0%
+2026-09-02 22:58:48,107 [INFO]  -> cons8780 mNone(0) y8780(5) profit-1251 confhigh discount0%
+2026-09-02 22:58:48,408 [INFO] [38] SIROCA　ハンディファン サーモンピンク　SF-H631PL model=SF-H631PL has_discount=False 0%
+2026-09-02 22:58:57,300 [INFO]  -> cons2508 mNone(0) y2508(3) profit295 confmedium discount0%
+2026-09-02 22:58:57,601 [INFO] [39] SIROCA　ハンディファン ティール　SF-H631AG model=SF-H631AG has_discount=False 0%
+2026-09-02 22:59:06,428 [INFO]  -> cons2530 mNone(0) y2530(2) profit315 conflow discount0%
+2026-09-02 22:59:06,729 [INFO] [40] 多摩電子工業　折りたたみハンディファン オリオンビールコラボモデ model=ACP5-ORW has_discount=False 0%
+2026-09-02 22:59:15,633 [INFO]  -> cons2850 m3839(1) y2850(2) profit319 confmedium discount0%
+2026-09-02 22:59:15,934 [INFO] [41] 多摩電子工業　折りたたみハンディファン オリオンビールコラボモデ model=ACP5-ORH has_discount=False 0%
+2026-09-02 22:59:24,758 [INFO]  -> cons2850 mNone(0) y2850(2) profit319 conflow discount0%
+2026-09-02 22:59:25,059 [INFO] [42] SIROCA　冷却プレート付きハンディファン ミルクティー　SF model=SF-H751-CH has_discount=False 0%
+2026-09-02 22:59:33,664 [INFO]  -> cons2934 mNone(0) y2934(2) profit344 conflow discount0%
+2026-09-02 22:59:33,964 [INFO] [43] ヤマゼン　サーキュレーター扇風機 DCモーター搭載 (省エネタイ model=RLX-MP023-C has_discount=False 0%
+2026-09-02 22:59:43,355 [INFO]  -> cons7600 m8682(4) y7600(12) profit-346 confhigh discount0%
+2026-09-02 22:59:43,656 [INFO] [44] ヤマゼン　扇風機 DCモーター搭載 (省エネタイプ) 自動首振り model=RLX-CP030-C has_discount=False 0%
+2026-09-02 22:59:52,652 [INFO]  -> cons6000 m6000(7) y7390(12) profit-522 confhigh discount0%
+2026-09-02 22:59:52,953 [INFO] [45] ヤマゼン　サーキュレーター扇風機 DCモーター搭載 (省エネタイ model=RLX-MP023-H has_discount=False 0%
+2026-09-02 23:00:01,477 [INFO]  -> cons6980 m8500(1) y6980(2) profit360 confmedium discount0%
+2026-09-02 23:00:01,778 [INFO] [46] ダイソン　dyson　DysonHot＋Cool HF1remo model=HF1REMOTELINKPRE-HEAT has_discount=False 0%
+2026-09-02 23:00:10,658 [INFO]  -> cons55500 mNone(0) y55500(4) profit845 confmedium discount0%
+2026-09-02 23:00:10,959 [INFO] [47] シィーネット　ハイポジ温度センサーDCリビング扇  ホワイト ( model=CFDH407WH has_discount=False 0%
+2026-09-02 23:00:19,477 [INFO]  -> cons777 m777(3) y12680(7) profit-10403 confhigh discount0%
+2026-09-02 23:00:19,777 [INFO] [48] SIROCA　加湿付き温冷風扇　シロカのなごみ　ホワイト　［リモ model=SH-C252 has_discount=False 0%
+2026-09-02 23:00:28,915 [INFO]  -> cons7480 m9250(90) y7480(18) profit-14320 confhigh discount0%
+2026-09-02 23:00:29,215 [INFO] [65] ヤマゼン　衣類乾燥除湿機 コンプレッサー方式 7〜14畳目安 上 model=RCD-J60-C has_discount=False 0%
+2026-09-02 23:00:37,892 [INFO]  -> cons12250 m12250(14) y19168(6) profit-6711 confhigh discount0%
+2026-09-02 23:00:38,193 [INFO] [49] SIROCA　シロカ 壁掛け扇風機 壁掛けふわビューン DCモー model=SF-W251 has_discount=False 0%
+2026-09-02 23:00:47,093 [INFO]  -> cons3300 m3300(3) y12430(6) profit-8292 confhigh discount0%
+2026-09-02 23:00:47,394 [INFO] [50] シィーネット　3D扇風機 DCモーター搭載 (省エネタイプ) 自 model=CFDU704WH has_discount=False 0%
+2026-09-02 23:00:56,330 [INFO]  -> cons7808 m7808(3) y8740(16) profit-230 confhigh discount0%
+2026-09-02 23:00:56,631 [INFO] [59] SWITCHBOT　スマートサーキュレーターLite ［DCモー model=SWITCHBOT has_discount=False 0%
+2026-09-02 23:00:59,454 [INFO]  -> cons3890 m3890(120) yNone(0) profit-5981 confhigh discount0%
+2026-09-02 23:00:59,754 [INFO] [60] ライフオンプロダクツ　Modern Collection パネラ model=JE-CF029 has_discount=False 0%
+2026-09-02 23:01:09,446 [INFO]  -> cons13000 m13000(2) y32780(10) profit-17184 confhigh discount0%
+2026-09-02 23:01:09,747 [INFO] [61] ヤマゼン　サーキュレーター扇風機 DCモーター搭載 (省エネタイ model=RLX-MP023-A has_discount=False 0%
+2026-09-02 23:01:18,480 [INFO]  -> cons6980 m7835(2) y6980(1) profit360 confmedium discount0%
+2026-09-02 23:01:18,781 [INFO] [62] SIROCA　3Dサーキュレーター扇風機 DCモーター搭載 (省 model=SF-C223-W has_discount=False 0%
+2026-09-02 23:01:27,276 [INFO]  -> cons13000 m13000(4) y16800(6) profit-2962 confhigh discount0%
+2026-09-02 23:01:27,577 [INFO] [66] シャープ　SHARP　「除湿機用】HEPAフィルター　FZ-D1 model=FZ-D10HF has_discount=False 0%
+2026-09-02 23:01:36,914 [INFO]  -> cons3655 m4000(19) y3655(14) profit-252 confhigh discount0%
+2026-09-02 23:01:37,215 [INFO] [63] カドー　DC除菌サーキュレーター扇風機 クールグレー  (DCモ model=STR-1800F-CG has_discount=False 0%
+2026-09-02 23:01:46,293 [INFO]  -> cons23450 m23450(2) y33000(6) profit-7975 confhigh discount0%
+2026-09-02 23:01:46,594 [INFO] [64] カドー　除菌サーキュレーター STREAM1800 [DCモータ model=STR-1800-WH has_discount=False 0%
+2026-09-02 23:01:55,196 [INFO]  -> cons10000 m10000(9) y31460(6) profit-17339 confhigh discount0%
+2026-09-02 23:01:55,573 [INFO] CSV results/github_integrated_20260902_2256.csv Summary results/github_integrated_summary_20260902_2256.txt
