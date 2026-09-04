@@ -1,0 +1,11 @@
+﻿rank,product_name,model,category,seller,yahoo_price,net_cost,conservative_median,profit_yen,profit_margin_pct,profit_small_post,total_count,confidence,yahoo_url,tfidf_score,volatility,new_match
+1,ヤマゼン　サーキュレーター扇風機 DCモーター搭載 (省エネタイプ) 23cm 7枚 PD仕様 リモコン付き グレージュ　RLX-MP023-C,RLX-MP023-C,扇風機本体,コジマYahoo!店,6980,5322,7600,918,12.08,918,12,high,https://store.shopping.yahoo.co.jp/y-kojima/4550533145441.html,0.54,0.014,True
+2,NAKAGAMI　大風量ハンディファン 充電式 台座付 ベージュ　YNG-LHF200-BE,YNG-LHF200-BE,扇風機本体,コジマYahoo!店,2178,1048,2284,408,17.85,708,6,high,https://store.shopping.yahoo.co.jp/y-kojima/4580441488804.html,0,0.012,False
+3,SIROCA　冷却プレート付きハンディファン ミルクティー　SF-H751-CH,SF-H751-CH,扇風機本体,コジマYahoo!店,2907,1697,2980,385,12.92,685,,,https://store.shopping.yahoo.co.jp/y-kojima/4589919850174.html,0,0.005,False
+4,コンピューケースジャパン　USBハンディファン agreen マーブルグリーン　JUF-KF07-MGR,JUF-KF07-MGR,扇風機本体,コジマYahoo!店,2980,1762,2980,320,10.74,620,,,https://store.shopping.yahoo.co.jp/y-kojima/4541995040535.html,0,0,False
+5,多摩電子工業　折りたたみハンディファン オリオンビールコラボモデル ネックストラップ付き 卓上 ホワイト　ACP5-ORW,ACP5-ORW,扇風機本体,コジマYahoo!店,2850,1646,2850,319,11.19,619,3,medium,https://store.shopping.yahoo.co.jp/y-kojima/4518707317742.html,1.0,0.0,True
+6,多摩電子工業　折りたたみハンディファン オリオンビールコラボモデル ネックストラップ付き 卓上 グレー　ACP5-ORH,ACP5-ORH,扇風機本体,コジマYahoo!店,2850,1646,2850,319,11.19,619,,,https://store.shopping.yahoo.co.jp/y-kojima/4518707317759.html,0,0.0,False
+7,SIROCA　冷却プレート付きハンディファン ダークネイビー　SF-H751-AD,SF-H751-AD,扇風機本体,コジマYahoo!店,2907,1697,2907,319,10.98,619,,,https://store.shopping.yahoo.co.jp/y-kojima/4589919850167.html,0,0.0,False
+8,SIROCA　ハンディファン ストーングレー　SF-H631HS,SF-H631HS,扇風機本体,コジマYahoo!店,2530,1362,2530,315,12.45,615,,,https://store.shopping.yahoo.co.jp/y-kojima/4589919844296.html,0,0.0,False
+9,SIROCA　ハンディファン ティール　SF-H631AG,SF-H631AG,扇風機本体,コジマYahoo!店,2530,1362,2530,315,12.45,615,,,https://store.shopping.yahoo.co.jp/y-kojima/4589919844265.html,0,0.0,False
+10,SIROCA　ハンディファン サーモンピンク　SF-H631PL,SF-H631PL,扇風機本体,コジマYahoo!店,2530,1362,2508,295,11.77,595,3,medium,https://store.shopping.yahoo.co.jp/y-kojima/4589919844272.html,0,0.0,False

@@ -1,7 +1,9 @@
 requests>=2.31.0
 pandas>=2.0.0
 selenium>=4.18.0
+playwright>=1.44.0
 mercapi
 yahoo-shopping
 webdriver-manager
 tenacity
+scikit-learn

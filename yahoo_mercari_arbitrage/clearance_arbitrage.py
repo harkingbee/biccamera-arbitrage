@@ -4,18 +4,11 @@
 - タイトルキーワード「アウトレット/在庫処分/訳あり/展示品/外箱不良/在庫限り」でも判定
 - 6小売×在庫処分クエリで横断
 """
-import csv, os, re, statistics, time, asyncio
+import csv, os, re, asyncio
 from datetime import datetime
-from urllib.parse import quote
-import requests
-from mercapi import Mercapi
-from mercapi.requests.search import SearchRequestData
-try:
-    from selenium import webdriver
-    from selenium.webdriver.chrome.options import Options
-    from selenium.webdriver.common.by import By
-    SELENIUM_AVAILABLE=True
-except: SELENIUM_AVAILABLE=False
+from yahoo_mercari_arbitrage.mercapi_utils import fetch_mercapi_median
+from yahoo_mercari_arbitrage.yahoo_utils import fetch_retailers_batched
+from yahoo_mercari_arbitrage.playwright_utils import YahooAuctionFetcher
 
 CONFIG={"YAHOO_APP_ID":"dmVyPTIwMjUwNyZpZD1IYm5kZzRhN0w3Jmhhc2g9TkRNeE1tSTFZMkZsTUdVeFkyWmtNZw","YAHOO_POINT_RATE":0.10,"COUPON_DISCOUNT":500,"PAYPAY_RATE":0.01,"MIN_PROFIT_MARGIN":0.08,"MIN_COUNT":2,"MERCARI_FEE":0.10,"MIN_PRICE":3000}
 SHIPPING_MAP={"テレビ":1500,"冷蔵庫":3000,"洗濯機":2500,"エアコン":3000,"パソコン":800,"その他":800}
@@ -51,27 +44,6 @@ logger.handlers=[]; logger.addHandler(fh); logger.addHandler(ch)
 
 CLEARANCE_KEYWORDS=["アウトレット","在庫処分","訳あり","展示品","外箱不良","在庫限り","処分","箱不良"]
 
-def fetch_yahoo_seller(seller_id, query, results=6):
-    if seller_id=="yahoo_proxy":
-        url="https://shopping.yahooapis.jp/ShoppingWebService/V3/itemSearch"
-        params={"appid":CONFIG["YAHOO_APP_ID"],"query":query,"results":results,"price_from":CONFIG["MIN_PRICE"],"sort":"-review_count"}
-    else:
-        url="https://shopping.yahooapis.jp/ShoppingWebService/V3/itemSearch"
-        params={"appid":CONFIG["YAHOO_APP_ID"],"query":query,"seller_id":seller_id,"results":results,"price_from":CONFIG["MIN_PRICE"],"sort":"-review_count","in_stock":"true"}
-    for attempt in range(1,4):
-        try:
-            r=requests.get(url, params=params, timeout=15)
-            if r.status_code==429:
-                time.sleep(10*attempt); continue
-            r.raise_for_status()
-            hits=r.json().get("hits",[])
-            logger.info(f" seller={seller_id} query={query} -> {len(hits)}")
-            return hits
-        except Exception as e:
-            logger.warning(f" err {e}")
-            time.sleep(2**attempt)
-    return []
-
 def parse_hit(item, rank, retailer, query):
     price=item.get("price",0)
     point=item.get("point",{})
@@ -105,69 +77,14 @@ def extract_model(name):
         return cands[0]
     return None
 
-def build_driver():
-    if not SELENIUM_AVAILABLE: return None
-    opts=Options()
-    opts.add_argument("--headless=new"); opts.add_argument("--no-sandbox"); opts.add_argument("--disable-dev-shm-usage"); opts.add_argument("--disable-gpu"); opts.add_argument("--window-size=1280,900")
-    opts.add_argument("--disable-blink-features=AutomationControlled")
-    opts.add_experimental_option("excludeSwitches",["enable-automation"])
-    opts.add_argument("user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36")
-    try:
-        from webdriver_manager.chrome import ChromeDriverManager
-        from selenium.webdriver.chrome.service import Service
-        d=webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=opts)
-    except:
-        d=webdriver.Chrome(options=opts)
-    d.implicitly_wait(3)
-    return d
-
-def fetch_yahooAuction(model, driver):
-    if not model: return {"median":None,"count":0}
-    from urllib.parse import quote as qq
-    url=f"https://auctions.yahoo.co.jp/search/search?p={qq(model)}&va={qq(model)}&exflg=1&b=1&n=50&s1=end&o1=d"
-    driver.get(url); time.sleep(2)
-    for sel in ["span[class*='Price']","span[class*='price']"]:
-        els=driver.find_elements(By.CSS_SELECTOR, sel)
-        if els:
-            prices=[]
-            for el in els[:20]:
-                txt=re.sub(r"[^\d]","",el.text)
-                if txt and 1000 <= int(txt) <= 1000000:
-                    prices.append(int(txt))
-            if prices:
-                import statistics
-                return {"median":round(statistics.median(prices)),"count":len(prices)}
-    return {"median":None,"count":0}
-
-async def fetch_mercapi(model):
-    if not model: return {"median":None,"count":0}
-    m=Mercapi()
-    try:
-        res=await m.search(model, status=[SearchRequestData.Status.STATUS_SOLD_OUT])
-        if not res.items: return {"median":None,"count":0}
-        import statistics
-        prices=[x.price for x in res.items[:20]]
-        return {"median":round(statistics.median(prices)),"count":len(res.items)}
-    except: return {"median":None,"count":0}
-
 async def main():
     started=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     logger.info("=== 在庫処分特化 6社×8クエリ 開始 ===")
-    all_hits=[]
-    for retailer, sellers in RETAILERS.items():
-        for seller in sellers:
-            for q in CLEARANCE_QUERIES:
-                hits=fetch_yahoo_seller(seller, q, RESULTS_PER_QUERY)
-                for h in hits:
-                    h["_retailer"]=retailer
-                    h["_query"]=q
-                    all_hits.append(h)
-                time.sleep(1.2)
+    hit_tuples=fetch_retailers_batched(CONFIG["YAHOO_APP_ID"], RETAILERS, CLEARANCE_QUERIES, RESULTS_PER_QUERY, price_from=CONFIG["MIN_PRICE"])
+    all_hits=[h for h,_,_ in hit_tuples]
     logger.info(f"総取得 {len(all_hits)}件")
     items=[]
-    for i,h in enumerate(all_hits):
-        retailer=h.pop("_retailer","unknown")
-        query=h.pop("_query","")
+    for i,(h,retailer,query) in enumerate(hit_tuples):
         parsed=parse_hit(h,i+1,retailer,query)
         parsed["retailer"]=retailer
         parsed["query"]=query
@@ -196,7 +113,8 @@ async def main():
     # 照合対象は在庫処分20件
     target=sorted(items, key=lambda x: x["discount_rate"], reverse=True)[:25]
     logger.info(f"照合対象 {len(target)}件（割引率高順）")
-    driver=build_driver()
+    auction=YahooAuctionFetcher(price_min=1000, price_max=1000000)
+    auction_ready=await auction.start()
     rows=[]
     csv_path=os.path.join(RESULTS_DIR, f"clearance_{TODAY}.csv")
     cols=["rank","retailer","query","name","model","category","yahoo_price","net_cost","has_discount","discount_rate","is_clearance","mercapi_median","mercapi_count","yahooAuction_median","yahooAuction_count","conservative_median","shipping","profit_yen","profit_margin","is_profitable","confidence","total_count","yahoo_url"]
@@ -206,10 +124,9 @@ async def main():
     for it in target:
         model=extract_model(it["name"])
         logger.info(f"[{it['rank']:02d}] {it['retailer']}/{it['query']} {it['name'][:30]} model={model} disc{it['discount_rate']}%")
-        m_data=await fetch_mercapi(model)
+        m_data=await fetch_mercapi_median(model)
         await asyncio.sleep(0.8)
-        y_data=fetch_yahooAuction(model, driver) if driver else {"median":None,"count":0}
-        time.sleep(1)
+        y_data=await auction.fetch(model) if auction_ready else {"median":None,"count":0}
         m_med=m_data["median"] if m_data else None
         y_med=y_data["median"] if y_data else None
         if m_med and y_med: cons=min(m_med,y_med)
@@ -231,7 +148,7 @@ async def main():
         with open(csv_path,"a",newline="",encoding="utf-8-sig") as f:
             w=csvm.DictWriter(f, fieldnames=cols); w.writerow(row)
         logger.info(f" -> cons{cons} profit{row['profit_yen']} conf{conf}")
-    if driver: driver.quit()
+    if auction_ready: await auction.stop()
     prof=[r for r in rows if r["is_profitable"]]
     from collections import Counter
     print(f"\n=== 在庫処分 利益あり {len(prof)}/{len(rows)} ===")

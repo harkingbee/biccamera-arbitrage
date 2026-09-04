@@ -2,7 +2,7 @@
 GitHub統合版：Yahoo Shopping API + take-kun/mercapi + Yahoo Auctionスクレイピング
 - Yahoo: 直接API（yahoo-shoppingラッパー相当、APP_IDはCONFIGから）
 - Mercari: GitHub take-kun/mercapi (APIレベル、Selenium不要)
-- Yahoo Auction: 軽量スクレイピング（Yoku相当、span[class*='price']）
+- Yahoo Auction: microsoft/playwright + 軽量ステルス（旧SeleniumはWebDriverフラグ等で検出されやすいため移行）
 保守的中央値 + 件数閾値 + カテゴリ別送料
 """
 import csv, os, re, statistics, time, asyncio
@@ -10,18 +10,9 @@ from datetime import datetime
 from urllib.parse import quote
 import requests
 
-# GitHub mercapi
-from mercapi import Mercapi
-from mercapi.requests.search import SearchRequestData
-
-# SeleniumはYahoo Auctionのみに残す（軽量）
-try:
-    from selenium import webdriver
-    from selenium.webdriver.chrome.options import Options
-    from selenium.webdriver.common.by import By
-    SELENIUM_AVAILABLE=True
-except ImportError:
-    SELENIUM_AVAILABLE=False
+# GitHub mercapi（共有ラッパー：ブロック対策のバックオフ+キャッシュ）
+from yahoo_mercari_arbitrage.mercapi_utils import fetch_mercapi_median
+from yahoo_mercari_arbitrage.playwright_utils import YahooAuctionFetcher
 
 CONFIG={
     "YAHOO_APP_ID": "dmVyPTIwMjUwNyZpZD1IYm5kZzRhN0w3Jmhhc2g9TkRNeE1tSTFZMkZsTUdVeFkyWmtNZw",
@@ -107,54 +98,6 @@ def extract_model(name):
         return cands[0]
     return None
 
-def build_driver():
-    if not SELENIUM_AVAILABLE:
-        return None
-    opts=Options()
-    opts.add_argument("--headless=new"); opts.add_argument("--no-sandbox"); opts.add_argument("--disable-dev-shm-usage"); opts.add_argument("--disable-gpu"); opts.add_argument("--window-size=1280,900")
-    opts.add_argument("--disable-blink-features=AutomationControlled")
-    opts.add_experimental_option("excludeSwitches",["enable-automation"])
-    opts.add_argument("user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36")
-    try:
-        from webdriver_manager.chrome import ChromeDriverManager
-        from selenium.webdriver.chrome.service import Service
-        d=webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=opts)
-    except:
-        d=webdriver.Chrome(options=opts)
-    d.implicitly_wait(3)
-    return d
-
-def fetch_yahooAuction(model, driver):
-    if not model or model=="SWITCHBOT":
-        return {"median":None,"count":0}
-    url=f"https://auctions.yahoo.co.jp/search/search?p={quote(model)}&va={quote(model)}&exflg=1&b=1&n=50&s1=end&o1=d"
-    driver.get(url); time.sleep(2)
-    for sel in ["span[class*='Price']","span[class*='price']"]:
-        els=driver.find_elements(By.CSS_SELECTOR, sel)
-        if els:
-            prices=[]
-            for el in els[:20]:
-                txt=re.sub(r"[^\d]","",el.text)
-                if txt and 500 <= int(txt) <= 500000:
-                    prices.append(int(txt))
-            if prices:
-                return {"median":round(statistics.median(prices)),"count":len(prices),"prices":prices}
-    return {"median":None,"count":0}
-
-async def fetch_mercapi(model):
-    if not model:
-        return {"median":None,"count":0,"note":"no_model"}
-    m=Mercapi()
-    try:
-        res=await m.search(model, status=[SearchRequestData.Status.STATUS_SOLD_OUT])
-        if not res.items:
-            return {"median":None,"count":0,"note":"no_sold"}
-        prices=[item.price for item in res.items[:20]]
-        return {"median":round(statistics.median(prices)),"mean":round(statistics.mean(prices)),"count":len(res.items),"total_found":res.meta.num_found,"prices":prices}
-    except Exception as e:
-        logger.warning(f"mercapi err {model}: {e}")
-        return {"median":None,"count":0,"note":"error"}
-
 async def main():
     started=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     logger.info("=== GitHub統合版 スキャン開始 ===")
@@ -179,8 +122,10 @@ async def main():
         return (1 if "ハンディ" in x["name"] else 0, x["review_count"])
     target=sorted(items, key=sort_key, reverse=True)[:30]
     logger.info(f"照合対象 {len(target)}件")
-    driver=build_driver()
-    if driver: logger.info("Selenium 起動 (Yahoo Auction用)")
+    auction=YahooAuctionFetcher()
+    auction_ready=await auction.start()
+    if auction_ready: logger.info("Playwright 起動 (Yahoo Auction用)")
+    else: logger.warning("Playwright未起動、Yahoo Auction相場はスキップ")
     rows=[]
     csv_path=os.path.join(RESULTS_DIR, f"github_integrated_{TODAY}.csv")
     cols=["rank","name","model","category","seller","yahoo_price","net_cost","has_discount","discount_rate","mercapi_median","mercapi_count","mercapi_total_found","yahooAuction_median","yahooAuction_count","conservative_median","shipping","profit_yen","profit_margin","profit_small","is_profitable","confidence","total_count","yahoo_url"]
@@ -192,11 +137,13 @@ async def main():
         model=extract_model(it["name"])
         logger.info(f"[{it['rank']:02d}] {it['name'][:32]} model={model} has_discount={it['has_discount']} {it['discount_rate']}%")
         # GitHub mercapi
-        m_data=await fetch_mercapi(model)
+        m_data=await fetch_mercapi_median(model)
         await asyncio.sleep(1.2)
         # Yahoo Auction
-        y_data=fetch_yahooAuction(model, driver) if driver else {"median":None,"count":0}
-        time.sleep(1)
+        if auction_ready and model and model!="SWITCHBOT":
+            y_data=await auction.fetch(model)
+        else:
+            y_data={"median":None,"count":0}
         m_med=m_data["median"] if m_data else None
         y_med=y_data["median"] if y_data else None
         if m_med and y_med:
@@ -237,7 +184,7 @@ async def main():
             w.writerow(row)
         logger.info(f" -> cons{cons} m{m_med}({m_data['count'] if m_data else 0}) y{y_med}({y_data['count'] if y_data else 0}) profit{row['profit_yen']} conf{conf} discount{it['discount_rate']}%")
         await asyncio.sleep(0.3)
-    if driver: driver.quit()
+    if auction_ready: await auction.stop()
     # サマリー
     prof=[r for r in rows if r["is_profitable"]]
     lines=["="*60,"  GitHub統合版 ビックカメラ夏物スキャン","="*60,f"実施: {started}",f"対象: {len(rows)}件","GitHub: take-kun/mercapi + Yahoo Auction軽量","条件: 利益率10%+件数3件+保守的中央値",f"利益あり: {len(prof)}件","","【利益額TOP5】"]

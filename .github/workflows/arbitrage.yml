@@ -30,6 +30,7 @@ jobs:
         run: |
           pip install -r yahoo_mercari_arbitrage/requirements.txt
           pip install mercapi yahoo-shopping
+          python -m playwright install --with-deps chromium
           # clone GitHub helper repos (cached)
           if [ ! -d /tmp/yahoo-auctions-scraper ]; then
             git clone --depth 1 https://github.com/atushi1841/yahoo-auctions-japan-scraper.git /tmp/yahoo-auctions-scraper
@@ -53,10 +54,18 @@ jobs:
           git add results/ logs/ || true
           git diff --staged --quiet || git commit -m "chore: daily arbitrage $(date +%Y-%m-%d) [skip ci]"
           git push || true
-      - name: Create issue for profitable items
+      - name: Locate today's summary file
+        id: summary
         if: always()
+        run: |
+          f=$(ls -t results/github_integrated_summary_*.txt 2>/dev/null | head -1 || true)
+          echo "path=$f" >> "$GITHUB_OUTPUT"
+          echo "date=$(date +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
+          echo "found=$([ -n "$f" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+      - name: Create issue for profitable items
+        if: always() && steps.summary.outputs.found == 'true'
         uses: peter-evans/create-issue-from-file@v5
         with:
-          title: "利益あり ${{ github.run_id }} - $(date +%Y-%m-%d)"
-          content-filepath: results/github_integrated_summary_${{ env.TODAY }}.txt
+          title: "利益あり ${{ github.run_id }} - ${{ steps.summary.outputs.date }}"
+          content-filepath: ${{ steps.summary.outputs.path }}
           labels: arbitrage
