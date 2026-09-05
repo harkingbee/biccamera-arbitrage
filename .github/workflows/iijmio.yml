@@ -1,0 +1,101 @@
+name: IIJmio Closed Sale Arbitrage
+
+on:
+  schedule:
+    - cron: '0 3 * * *'  # JST 12:00 (UTC 03:00)
+  workflow_dispatch:
+    inputs:
+      max_products:
+        description: '最大チェック商品数'
+        required: false
+        default: '30'
+  push:
+    branches: [main]
+    paths:
+      - 'yahoo_mercari_arbitrage/iijmio_closed_arbitrage.py'
+      - 'yahoo_mercari_arbitrage/mercapi_utils.py'
+      - 'yahoo_mercari_arbitrage/playwright_utils.py'
+      - '.github/workflows/iijmio.yml'
+
+jobs:
+  iijmio:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: write
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install -r yahoo_mercari_arbitrage/requirements.txt
+          pip install mercapi yahoo-shopping scikit-learn 2>/dev/null || pip install mercapi
+          python -m playwright install --with-deps chromium
+          if [ ! -d /tmp/yahoo-auctions-scraper ]; then
+            git clone --depth 1 https://github.com/atushi1841/yahoo-auctions-japan-scraper.git /tmp/yahoo-auctions-scraper || true
+          fi
+
+      - name: Run IIJmio high-accuracy arbitrage
+        env:
+          IIJMIO_EMAIL: ${{ secrets.IIJMIO_EMAIL }}
+          IIJMIO_PASSWORD: ${{ secrets.IIJMIO_PASSWORD }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          YAHOO_APP_ID: ${{ secrets.YAHOO_APP_ID }}
+        run: |
+          export YAHOO_APP_ID=${YAHOO_APP_ID:-dmVyPTIwMjUwNyZpZD1IYm5kZzRhN0w3Jmhhc2g9TkRNeE1tSTFZMkZsTUdVeFkyWmtNZw}
+          echo "IIJmio arbitrage start (max_products=${{ inputs.max_products || '30' }})"
+          python -m yahoo_mercari_arbitrage.iijmio_closed_arbitrage
+          echo "=== results ==="
+          ls -lh results/iijmio* 2>/dev/null | head -20
+          ls -lh results/*.png 2>/dev/null | head -10
+
+      - name: Commit results (CSV/HTML/ログ/スクショ)
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add results/iijmio*.csv results/iijmio*.txt results/iijmio*.html 2>/dev/null || true
+          git add logs/iijmio*.log 2>/dev/null || true
+          git add results/iijmio_closed_*.png 2>/dev/null || true
+          git diff --staged --quiet || git commit -m "chore: iijmio $(date +%Y-%m-%d) [skip ci]"
+          git push || echo "push skipped"
+
+      - name: Locate today's IIJmio summary
+        id: summary
+        if: always()
+        run: |
+          f=$(ls -t results/iijmio_summary_*.txt 2>/dev/null | head -1 || echo "")
+          echo "path=$f" >> "$GITHUB_OUTPUT"
+          if [ -n "$f" ] && [ -f "$f" ]; then echo "found=true" >> "$GITHUB_OUTPUT"; else echo "found=false" >> "$GITHUB_OUTPUT"; fi
+          echo "date=$(date +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
+          if [ -f "$f" ] && grep -q "利益あり.*[1-9]件" "$f" 2>/dev/null; then echo "profitable=true" >> "$GITHUB_OUTPUT"; else echo "profitable=false" >> "$GITHUB_OUTPUT"; fi
+          cat "$f" 2>/dev/null | head -100 || echo "no summary"
+
+      - name: Create issue (利益あり時のみ)
+        if: always() && steps.summary.outputs.profitable == 'true'
+        uses: peter-evans/create-issue-from-file@v5
+        with:
+          title: "📱 IIJmio 利益あり - ${{ steps.summary.outputs.date }}"
+          content-filepath: ${{ steps.summary.outputs.path }}
+          labels: arbitrage,iijmio
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: iijmio-results-${{ github.run_number }}
+          path: |
+            results/iijmio*.csv
+            results/iijmio*.txt
+            results/iijmio*.png
+            results/iijmio*.html
+          retention-days: 14
+          if-no-files-found: warn
