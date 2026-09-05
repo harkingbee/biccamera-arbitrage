@@ -62,11 +62,13 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          # 競合回避: 先にpull --rebase
+          git pull --rebase origin main || (git stash && git pull --rebase origin main && git stash pop || true)
           git add results/iijmio*.csv results/iijmio*.txt results/iijmio*.html 2>/dev/null || true
           git add logs/iijmio*.log 2>/dev/null || true
           git add results/iijmio_closed_*.png 2>/dev/null || true
           git diff --staged --quiet || git commit -m "chore: iijmio $(date +%Y-%m-%d) [skip ci]"
-          git push || echo "push skipped"
+          git push || (git pull --rebase origin main && git push) || echo "push skipped"
 
       - name: Locate today's IIJmio summary
         id: summary

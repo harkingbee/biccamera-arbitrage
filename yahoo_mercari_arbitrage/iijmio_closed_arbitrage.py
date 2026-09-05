@@ -171,8 +171,16 @@ async def fetch_iijmio_products(email, password, max_products=30):
         await page.goto(IIJMIO_LOGIN_URL, timeout=30000, wait_until="domcontentloaded")
         await page.wait_for_timeout(1500)
 
-        email_selectors = ['input[name="email"]', 'input[type="email"]', '#email', 'input[name*="mail"]', 'input[id*="email"]', 'input[autocomplete*="email"]']
-        pwd_selectors = ['input[name="password"]', 'input[type="password"]', '#password', 'input[id*="pass"]']
+        # IIJmio実HTML: name="j_username" / name="j_password" / a.pink_btn
+        email_selectors = [
+            'input[name="j_username"]', 'input[name="email"]', 'input[type="email"]',
+            '#email', 'input[name*="mail"]', 'input[id*="email"]', 'input[name*="username"]',
+            'input[type="text"]'
+        ]
+        pwd_selectors = [
+            'input[name="j_password"]', 'input[name="password"]', 'input[type="password"]',
+            '#password', 'input[id*="pass"]'
+        ]
 
         email_filled = False
         for sel in email_selectors:
@@ -186,8 +194,12 @@ async def fetch_iijmio_products(email, password, max_products=30):
             except Exception:
                 continue
         if not email_filled:
-            await page.evaluate('val => { document.querySelectorAll("input").forEach(el=>{ if(el.type==="email"||el.name?.includes("mail")||el.id?.includes("mail")) el.value=val }) }', email)
-            logger.info(" email filled via evaluate fallback")
+            # evaluateでj_usernameを直接指定
+            await page.evaluate('val => { const el=document.querySelector("input[name=\\"j_username\\"]")||document.querySelector("input[type=\\"text\\"]"); if(el){ el.focus(); el.value=val; el.dispatchEvent(new Event("input",{bubbles:true})); el.dispatchEvent(new Event("change",{bubbles:true})); } }', email)
+            # 再確認
+            val = await page.evaluate('document.querySelector("input[name=\\"j_username\\"]")?.value || ""')
+            email_filled = bool(val)
+            logger.info(f" email filled via evaluate fallback, value set: {bool(val)}")
 
         pwd_filled = False
         for sel in pwd_selectors:
@@ -201,10 +213,13 @@ async def fetch_iijmio_products(email, password, max_products=30):
             except Exception:
                 continue
         if not pwd_filled:
-            await page.evaluate('val => { document.querySelectorAll("input").forEach(el=>{ if(el.type==="password") el.value=val }) }', password)
+            await page.evaluate('val => { const el=document.querySelector("input[name=\\"j_password\\"]")||document.querySelector("input[type=\\"password\\"]"); if(el){ el.focus(); el.value=val; el.dispatchEvent(new Event("input",{bubbles:true})); } }', password)
             logger.info(" password filled via evaluate fallback")
 
-        submit_selectors = ['button[type="submit"]', 'input[type="submit"]', 'button:has-text("ログイン")', 'a:has-text("ログイン")', '.btn-login', 'text=ログイン']
+        submit_selectors = [
+            'a.pink_btn', '.pink_btn', 'a:has-text("ログイン")', 'button:has-text("ログイン")',
+            'button[type="submit"]', 'input[type="submit"]', '.btn-login', 'text=ログイン'
+        ]
         clicked = False
         for sel in submit_selectors:
             try:
@@ -217,8 +232,8 @@ async def fetch_iijmio_products(email, password, max_products=30):
             except Exception:
                 continue
         if not clicked:
-            await page.evaluate('document.querySelector("form")?.submit()')
-            logger.info(" form submit via evaluate")
+            await page.evaluate('document.querySelector("a.pink_btn")?.click() || document.querySelector("form")?.submit()')
+            logger.info(" pink_btn click via evaluate")
 
         await page.wait_for_timeout(4000)
         try:
