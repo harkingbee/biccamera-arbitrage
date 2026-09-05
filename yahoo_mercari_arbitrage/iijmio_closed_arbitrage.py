@@ -289,6 +289,96 @@ async def fetch_iijmio_products(email, password, max_products=30):
         url = page.url
         logger.info(f" ログイン後URL: {url}")
 
+        # MFA検出: /mfa にリダイレクトされた場合はTOTPで突破
+        if "mfa" in url.lower() or "auth" in url.lower() and "login" in url.lower():
+            # MFAページのHTMLを確認
+            mfa_html = await page.content()
+            try:
+                await page.screenshot(path=os.path.join(RESULTS_DIR, f"iijmio_mfa_{TODAY}.png"), full_page=True)
+            except Exception:
+                pass
+            with open(os.path.join(RESULTS_DIR, f"iijmio_mfa_{TODAY}.html"), "w", encoding="utf-8") as f:
+                f.write(mfa_html[:500000])
+
+            totp_secret = os.environ.get("IIJMIO_TOTP_SECRET", "")
+            if totp_secret:
+                logger.info(" MFA検出、TOTPで認証を試行")
+                try:
+                    import pyotp
+                    totp = pyotp.TOTP(totp_secret.replace(" ", "").replace("-", ""))
+                    code = totp.now()
+                    logger.info(f" TOTP生成: {code[:2]}**** (残り{30 - datetime.now().second % 30}秒)")
+
+                    # MFAコード入力（複数セレクタ）
+                    mfa_selectors = [
+                        'input[name="code"]', 'input[name="otp"]', 'input[name="mfaCode"]',
+                        'input[inputmode="numeric"]', 'input[type="tel"]', 'input[type="text"][maxlength="6"]',
+                        'input[autocomplete="one-time-code"]', '#code', 'input[name*="code"]'
+                    ]
+                    filled = False
+                    for sel in mfa_selectors:
+                        try:
+                            loc = page.locator(sel).first
+                            if await loc.count() > 0:
+                                await loc.wait_for(state="visible", timeout=3000)
+                                await loc.fill(code)
+                                filled = True
+                                logger.info(f" MFA code filled: {sel}")
+                                break
+                        except Exception:
+                            continue
+                    if not filled:
+                        # 6桁を1桁ずつ入力するタイプ
+                        inputs = page.locator('input[type="text"], input[type="tel"], input[inputmode="numeric"]')
+                        cnt = await inputs.count()
+                        if cnt >= 6:
+                            for i, ch in enumerate(code[:6]):
+                                try:
+                                    await inputs.nth(i).fill(ch)
+                                except Exception:
+                                    pass
+                            filled = True
+                            logger.info(f" MFA 6 inputs filled ({cnt} inputs)")
+                        else:
+                            await page.evaluate('c => { const el=document.querySelector("input"); if(el){ el.value=c; el.dispatchEvent(new Event("input",{bubbles:true})); } }', code)
+                            filled = True
+
+                    # 送信
+                    for sel in ['button:has-text("認証")', 'button:has-text("確認")', 'button:has-text("Verify")', 'a.pink_btn', '.pink_btn', 'button[type="submit"]']:
+                        try:
+                            loc = page.locator(sel).first
+                            if await loc.count() > 0:
+                                await loc.click()
+                                logger.info(f" MFA submit: {sel}")
+                                break
+                        except Exception:
+                            continue
+                    else:
+                        await page.evaluate('document.querySelector("form")?.submit()')
+
+                    await page.wait_for_timeout(4000)
+                    try:
+                        await page.wait_for_load_state("networkidle", timeout=15000)
+                    except Exception:
+                        pass
+                    url = page.url
+                    logger.info(f" MFA後URL: {url}")
+                except ImportError:
+                    logger.error(" pyotp not installed: pip install pyotp")
+                except Exception as e:
+                    logger.error(f" MFA処理失敗: {e}", exc_info=True)
+            else:
+                logger.warning(" MFAが有効ですが IIJMIO_TOTP_SECRET が未設定。Discordで通知します。")
+                webhook = os.environ.get("DISCORD_WEBHOOK_URL", "")
+                if webhook:
+                    import requests as req
+                    try:
+                        req.post(webhook, json={"content": f"🔐 IIJmio二要素認証(MFA)が必要です。\nTOTPシークレットをGitHub Secrets `IIJMIO_TOTP_SECRET` に設定してください。\nIIJmioマイページ → セキュリティ設定 → 認証アプリのQRコードからシークレットを取得し、\n`gh secret set IIJMIO_TOTP_SECRET --repo harkingbee/biccamera-arbitrage` で登録してください。\nログイン後URL: {url}"}, timeout=10)
+                    except Exception:
+                        pass
+                # MFA必須のため中断（スクショはアップロードされる）
+                await page.screenshot(path=os.path.join(RESULTS_DIR, f"iijmio_mfa_required_{TODAY}.png"), full_page=True)
+
         logger.info(" 閉店セールページへ遷移")
         await page.goto(IIJMIO_CLOSED_SALE_URL, timeout=30000, wait_until="domcontentloaded")
         await page.wait_for_timeout(3000)
