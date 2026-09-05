@@ -47,6 +47,15 @@ jobs:
             --yahoo results/github_integrated_$(date +%Y%m%d)*.csv \
             --suruga "ハンディファン=results/github_integrated_$(date +%Y%m%d)*.csv" \
             --min-margin-rate 0.10 --out results/margin_$(date +%Y%m%d).json || true
+      - name: Sync results to Google Sheets and notify Discord
+        if: always()
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          # 3つのSecretsが未設定の間はsheets_notify.py側で安全にスキップされる
+          python -m yahoo_mercari_arbitrage.sheets_notify
       - name: Commit results
         run: |
           git config user.name "github-actions[bot]"
