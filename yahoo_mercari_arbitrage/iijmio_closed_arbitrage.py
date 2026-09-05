@@ -337,11 +337,12 @@ async def fetch_iijmio_products(email, password, max_products=30):
                     code = totp.now()
                     logger.info(f" TOTP生成: {code[:2]}**** (残り{30 - datetime.now().second % 30}秒)")
 
-                    # MFAコード入力（複数セレクタ）
+                    # MFAコード入力（IIJmio実HTML: name="mfa_code" type="password" autocomplete="one-time-code" maxlength="8"）
                     mfa_selectors = [
+                        'input[name="mfa_code"]', 'input[autocomplete="one-time-code"]',
                         'input[name="code"]', 'input[name="otp"]', 'input[name="mfaCode"]',
                         'input[inputmode="numeric"]', 'input[type="tel"]', 'input[type="text"][maxlength="6"]',
-                        'input[autocomplete="one-time-code"]', '#code', 'input[name*="code"]'
+                        'input[type="text"][maxlength="8"]', '#code', 'input[name*="code"]'
                     ]
                     filled = False
                     for sel in mfa_selectors:
@@ -356,23 +357,34 @@ async def fetch_iijmio_products(email, password, max_products=30):
                         except Exception:
                             continue
                     if not filled:
-                        # 6桁を1桁ずつ入力するタイプ
-                        inputs = page.locator('input[type="text"], input[type="tel"], input[inputmode="numeric"]')
+                        # 6-8桁を1桁ずつ入力するタイプ
+                        inputs = page.locator('input[type="password"], input[type="text"], input[type="tel"], input[inputmode="numeric"]')
                         cnt = await inputs.count()
                         if cnt >= 6:
-                            for i, ch in enumerate(code[:6]):
+                            for i, ch in enumerate(code[:8]):
                                 try:
                                     await inputs.nth(i).fill(ch)
                                 except Exception:
                                     pass
                             filled = True
-                            logger.info(f" MFA 6 inputs filled ({cnt} inputs)")
+                            logger.info(f" MFA {cnt} inputs filled one by one")
                         else:
                             await page.evaluate('c => { const el=document.querySelector("input"); if(el){ el.value=c; el.dispatchEvent(new Event("input",{bubbles:true})); } }', code)
                             filled = True
 
+                    # 「この端末を記憶」チェック
+                    for sel in ['input[name="mfa_remember"]', 'input[type="checkbox"]']:
+                        try:
+                            loc = page.locator(sel).first
+                            if await loc.count() > 0:
+                                await loc.check()
+                                logger.info(f" MFA remember checked: {sel}")
+                                break
+                        except Exception:
+                            continue
+
                     # 送信
-                    for sel in ['button:has-text("認証")', 'button:has-text("確認")', 'button:has-text("Verify")', 'a.pink_btn', '.pink_btn', 'button[type="submit"]']:
+                    for sel in ['button:has-text("認証")', 'button:has-text("確認")', 'button:has-text("Verify")', 'a.pink_btn', '.pink_btn', 'button[type="submit"]', 'input[type="submit"]']:
                         try:
                             loc = page.locator(sel).first
                             if await loc.count() > 0:
