@@ -169,9 +169,21 @@ async def fetch_iijmio_products(email, password, max_products=30):
     try:
         logger.info("IIJmioログインページへ遷移")
         await page.goto(IIJMIO_LOGIN_URL, timeout=30000, wait_until="domcontentloaded")
+        # Nuxt Vueが描画完了するまで待機
+        try:
+            await page.wait_for_selector('input[name="j_username"]', timeout=10000)
+            logger.info(" j_username selector visible")
+        except Exception:
+            logger.warning(" j_username not visible after 10s, try wait_for_timeout")
+            await page.wait_for_timeout(3000)
+        # 追加でnetworkidleを待つ
+        try:
+            await page.wait_for_load_state("networkidle", timeout=10000)
+        except Exception:
+            pass
         await page.wait_for_timeout(1500)
 
-        # IIJmio実HTML: name="j_username" / name="j_password" / a.pink_btn
+        # IIJmio実HTML: name="j_username" / name="j_password" / a.pink_btn (debugで確認済み)
         email_selectors = [
             'input[name="j_username"]', 'input[name="email"]', 'input[type="email"]',
             '#email', 'input[name*="mail"]', 'input[id*="email"]', 'input[name*="username"]',
@@ -186,34 +198,68 @@ async def fetch_iijmio_products(email, password, max_products=30):
         for sel in email_selectors:
             try:
                 loc = page.locator(sel).first
-                if await loc.count() > 0:
-                    await loc.fill(email)
-                    email_filled = True
-                    logger.info(f" email filled: {sel}")
-                    break
-            except Exception:
+                # 明示的に可視まで待つ
+                try:
+                    await loc.wait_for(state="visible", timeout=3000)
+                except Exception:
+                    if await loc.count() == 0:
+                        continue
+                await loc.fill(email)
+                # Vueのv-model反映を確実にするためinputイベント発火
+                await loc.evaluate('el => el.dispatchEvent(new Event("input",{bubbles:true}))')
+                email_filled = True
+                logger.info(f" email filled: {sel}")
+                break
+            except Exception as e:
+                logger.debug(f" email selector {sel} failed: {e}")
                 continue
         if not email_filled:
-            # evaluateでj_usernameを直接指定
-            await page.evaluate('val => { const el=document.querySelector("input[name=\\"j_username\\"]")||document.querySelector("input[type=\\"text\\"]"); if(el){ el.focus(); el.value=val; el.dispatchEvent(new Event("input",{bubbles:true})); el.dispatchEvent(new Event("change",{bubbles:true})); } }', email)
-            # 再確認
+            # 最終フォールバック: evaluateでネイティブセッター経由（Vue対応）
+            await page.evaluate('''val => {
+                const el=document.querySelector('input[name="j_username"]')||document.querySelector('input[type="text"]');
+                if(el){
+                    const proto = Object.getPrototypeOf(el);
+                    const desc = Object.getOwnPropertyDescriptor(proto, "value");
+                    if(desc && desc.set){
+                        desc.set.call(el, val);
+                    } else {
+                        el.value = val;
+                    }
+                    el.dispatchEvent(new Event("input",{bubbles:true}));
+                    el.dispatchEvent(new Event("change",{bubbles:true}));
+                }
+            }''', email)
             val = await page.evaluate('document.querySelector("input[name=\\"j_username\\"]")?.value || ""')
             email_filled = bool(val)
-            logger.info(f" email filled via evaluate fallback, value set: {bool(val)}")
+            logger.info(f" email filled via evaluate fallback, value set: {bool(val)} (value={val[:10] if val else ''})")
 
         pwd_filled = False
         for sel in pwd_selectors:
             try:
                 loc = page.locator(sel).first
-                if await loc.count() > 0:
-                    await loc.fill(password)
-                    pwd_filled = True
-                    logger.info(f" password filled: {sel}")
-                    break
-            except Exception:
+                try:
+                    await loc.wait_for(state="visible", timeout=3000)
+                except Exception:
+                    if await loc.count() == 0:
+                        continue
+                await loc.fill(password)
+                await loc.evaluate('el => el.dispatchEvent(new Event("input",{bubbles:true}))')
+                pwd_filled = True
+                logger.info(f" password filled: {sel}")
+                break
+            except Exception as e:
+                logger.debug(f" password selector {sel} failed: {e}")
                 continue
         if not pwd_filled:
-            await page.evaluate('val => { const el=document.querySelector("input[name=\\"j_password\\"]")||document.querySelector("input[type=\\"password\\"]"); if(el){ el.focus(); el.value=val; el.dispatchEvent(new Event("input",{bubbles:true})); } }', password)
+            await page.evaluate('''val => {
+                const el=document.querySelector('input[name="j_password"]')||document.querySelector('input[type="password"]');
+                if(el){
+                    const proto = Object.getPrototypeOf(el);
+                    const desc = Object.getOwnPropertyDescriptor(proto, "value");
+                    if(desc && desc.set) desc.set.call(el, val); else el.value=val;
+                    el.dispatchEvent(new Event("input",{bubbles:true}));
+                }
+            }''', password)
             logger.info(" password filled via evaluate fallback")
 
         submit_selectors = [
