@@ -167,8 +167,36 @@ async def fetch_iijmio_products(email, password, max_products=30):
     page = await ctx.new_page()
 
     try:
-        logger.info("IIJmioログインページへ遷移")
-        await page.goto(IIJMIO_LOGIN_URL, timeout=30000, wait_until="domcontentloaded")
+        # 1. まず closed_sale に直接アクセス（信頼済み端末ならCookieでスルー）
+        logger.info("閉店セールページへ直接アクセス（信頼済み端末判定）")
+        await page.goto(IIJMIO_CLOSED_SALE_URL, timeout=30000, wait_until="domcontentloaded")
+        await page.wait_for_timeout(2000)
+        try:
+            await page.wait_for_load_state("networkidle", timeout=10000)
+        except Exception:
+            pass
+
+        current_url = page.url
+        logger.info(f" 直接アクセス後のURL: {current_url}")
+
+        # ログインページまたはMFAページにリダイレクトされた場合のみログイン処理
+        needs_login = ("/auth/login" in current_url or "mfa" in current_url.lower()
+                       or "ログイン" in await page.title())
+
+        if not needs_login:
+            # 商品が見えるか確認
+            content = await page.content()
+            if "JavaScriptが無効" not in content and ("product" in content.lower() or "¥" in content):
+                logger.info(" 信頼済み端末としてログイン不要でアクセス成功")
+            else:
+                needs_login = True
+                logger.info(" ページ読み込み不完全、ログインを試行")
+        else:
+            logger.info(" ログイン/MFAページへリダイレクト、認証を実行")
+
+        if needs_login:
+            logger.info("IIJmioログインページへ遷移")
+            await page.goto(IIJMIO_LOGIN_URL, timeout=30000, wait_until="domcontentloaded")
         # Nuxt Vueが描画完了するまで待機
         try:
             await page.wait_for_selector('input[name="j_username"]', timeout=10000)
