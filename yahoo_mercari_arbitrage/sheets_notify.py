@@ -25,11 +25,17 @@ RESULTS_DIR = "results"
 SHEET_LATEST = "最新結果"
 SHEET_HISTORY = "履歴"
 
-COLUMNS = [
-    "rank", "name", "model", "category", "seller", "yahoo_price", "net_cost",
-    "has_discount", "discount_rate", "mercapi_median", "mercapi_count",
-    "yahooAuction_median", "yahooAuction_count", "conservative_median", "shipping",
-    "profit_yen", "profit_margin", "is_profitable", "confidence", "total_count", "yahoo_url",
+# 「最新結果」シートに出す列。生CSVの21列は情報が多すぎるため、
+# 利益が出ているかどうかが一目でわかる最小限の列に絞る
+DISPLAY_COLUMNS = [
+    ("mark", "利益あり"),
+    ("name", "商品名"),
+    ("model", "型番"),
+    ("yahoo_price", "仕入価格"),
+    ("conservative_median", "参考売値"),
+    ("profit_yen", "利益額"),
+    ("profit_margin", "利益率%"),
+    ("yahoo_url", "URL"),
 ]
 
 
@@ -70,13 +76,23 @@ def get_or_create_worksheet(sh, title, rows=200, cols=25):
         return sh.add_worksheet(title=title, rows=rows, cols=cols)
 
 
+def _row_for_display(r):
+    line = []
+    for key, _ in DISPLAY_COLUMNS:
+        line.append("✅" if key == "mark" and _is_profitable(r) else r.get(key, ""))
+    return line
+
+
 def write_latest(sh, rows, scanned_at):
     ws = get_or_create_worksheet(sh, SHEET_LATEST)
     ws.clear()
-    ws.append_row([f"最終更新: {scanned_at}"])
-    ws.append_row(COLUMNS)
-    if rows:
-        ws.append_rows([[r.get(c, "") for c in COLUMNS] for r in rows], value_input_option="USER_ENTERED")
+    profitable = [r for r in rows if _is_profitable(r)]
+    ws.append_row([f"利益あり: {len(profitable)}件 / 対象{len(rows)}件　（最終更新: {scanned_at}）"])
+    ws.append_row([label for _, label in DISPLAY_COLUMNS])
+    # 利益ありの商品を上に、利益額が大きい順に並べる
+    ordered = sorted(rows, key=lambda r: (not _is_profitable(r), -_profit_yen(r)))
+    if ordered:
+        ws.append_rows([_row_for_display(r) for r in ordered], value_input_option="USER_ENTERED")
 
 
 def append_history(sh, rows, scanned_at):
