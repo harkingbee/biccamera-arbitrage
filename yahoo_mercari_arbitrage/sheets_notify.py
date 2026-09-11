@@ -27,8 +27,8 @@ SHEET_HISTORY = "履歴"
 
 # 「最新結果」シートに出す列。生CSVの21列は情報が多すぎるため、
 # 利益が出ているかどうかが一目でわかる最小限の列に絞る
+# （シート自体、利益ありの商品だけを載せるため「利益あり」列は無し）
 DISPLAY_COLUMNS = [
-    ("mark", "利益あり"),
     ("name", "商品名"),
     ("model", "型番"),
     ("yahoo_price", "仕入価格"),
@@ -77,22 +77,17 @@ def get_or_create_worksheet(sh, title, rows=200, cols=25):
 
 
 def _row_for_display(r):
-    line = []
-    for key, _ in DISPLAY_COLUMNS:
-        line.append("✅" if key == "mark" and _is_profitable(r) else r.get(key, ""))
-    return line
+    return [r.get(key, "") for key, _ in DISPLAY_COLUMNS]
 
 
 def write_latest(sh, rows, scanned_at):
     ws = get_or_create_worksheet(sh, SHEET_LATEST)
     ws.clear()
-    profitable = [r for r in rows if _is_profitable(r)]
+    profitable = sorted((r for r in rows if _is_profitable(r)), key=_profit_yen, reverse=True)
     ws.append_row([f"利益あり: {len(profitable)}件 / 対象{len(rows)}件　（最終更新: {scanned_at}）"])
     ws.append_row([label for _, label in DISPLAY_COLUMNS])
-    # 利益ありの商品を上に、利益額が大きい順に並べる
-    ordered = sorted(rows, key=lambda r: (not _is_profitable(r), -_profit_yen(r)))
-    if ordered:
-        ws.append_rows([_row_for_display(r) for r in ordered], value_input_option="USER_ENTERED")
+    if profitable:
+        ws.append_rows([_row_for_display(r) for r in profitable], value_input_option="USER_ENTERED")
 
 
 def append_history(sh, rows, scanned_at):
