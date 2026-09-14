@@ -71,10 +71,18 @@ jobs:
           echo "path=$f" >> "$GITHUB_OUTPUT"
           echo "date=$(date +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
           echo "found=$([ -n "$f" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
-      - name: Create issue for profitable items
+      - name: Check for profitable items
+        id: profit_check
         if: always() && steps.summary.outputs.found == 'true'
+        run: |
+          csv_path=$(echo "${{ steps.summary.outputs.path }}" | sed 's/_summary//; s/\.txt$/.csv/')
+          count=$(python3 -m yahoo_mercari_arbitrage.count_profitable "$csv_path")
+          echo "count=$count" >> "$GITHUB_OUTPUT"
+          echo "has_profit=$([ "$count" -gt 0 ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+      - name: Create issue for profitable items
+        if: always() && steps.profit_check.outputs.has_profit == 'true'
         uses: peter-evans/create-issue-from-file@v5
         with:
-          title: "利益あり ${{ github.run_id }} - ${{ steps.summary.outputs.date }}"
+          title: "利益あり ${{ steps.profit_check.outputs.count }}件 ${{ github.run_id }} - ${{ steps.summary.outputs.date }}"
           content-filepath: ${{ steps.summary.outputs.path }}
           labels: arbitrage
