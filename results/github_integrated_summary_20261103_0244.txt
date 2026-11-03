@@ -1,0 +1,17 @@
+============================================================
+  GitHub統合版 ビックカメラ夏物スキャン
+============================================================
+実施: 2026-11-03 02:44:36
+対象: 30件
+GitHub: take-kun/mercapi + Yahoo Auction軽量
+条件: 利益率10%+件数3件+保守的中央値
+利益あり: 9件
+
+【利益額TOP5】
+  1. RHYTHM リズム　モバイルハンディファン Silky Wind Mobi ¥8,798 (73.32%) 9ZF042RH38  mercapi11999x25 yahooNonex0
+  2. RHYTHM リズム　モバイルハンディファン Silky Wind Mobi ¥8,349 (72.6%) 9ZF042RH82  mercapi11500x12 yahooNonex0
+  3. RHYTHM リズム　モバイルハンディファン Silky Wind Mobi ¥7,645 (70.14%) 9ZF042RH08  mercapi10900x34 yahooNonex0
+  4. SIROCA　ハンディファン ストーングレー　SF-H631HS ¥7,488 (71.31%) SF-H631HS  mercapi10500x4 yahooNonex0
+  5. SIROCA ハンディファン  ストーングレー SF-H631HS ¥7,488 (71.31%) SF-H631HS  mercapi10500x4 yahooNonex0
+
+============================================================
