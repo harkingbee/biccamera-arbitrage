@@ -1,0 +1,17 @@
+============================================================
+  GitHub統合版 ビックカメラ夏物スキャン
+============================================================
+実施: 2026-11-28 03:02:21
+対象: 30件
+GitHub: take-kun/mercapi + Yahoo Auction軽量
+条件: 利益率10%+件数3件+保守的中央値
+利益あり: 8件
+
+【利益額TOP5】
+  1. RHYTHM リズム　モバイルハンディファン Silky Wind Mobi ¥6,431 (68.05%) 9ZF042RH08  mercapi9450x39 yahooNonex0
+  2. シャープ　SHARP　「除湿機用】脱臭フィルター　FZ-D10DF ¥6,038 (60.38%) FZ-D10DF  mercapi10000x65 yahooNonex0
+  3. RHYTHM リズム　モバイルハンディファン Silky Wind Mobi ¥6,026 (66.96%) 9ZF042RH84  mercapi9000x35 yahooNonex0
+  4. RHYTHM リズム　モバイルハンディファン Silky Wind Mobi ¥4,751 (62.65%) 9ZF042RH38  mercapi7583x14 yahooNonex0
+  5. RHYTHM リズム　モバイルハンディファン Silky Wind Mobi ¥3,731 (57.84%) 9ZF042RH82  mercapi6450x8 yahooNonex0
+
+============================================================
